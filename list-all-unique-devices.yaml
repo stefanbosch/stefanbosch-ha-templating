@@ -1,0 +1,18 @@
+{#{ (states | map(attribute='entity_id') | list) }#}
+
+{% set ns = namespace(deviceids=[]) %}
+{% for each in states | map(attribute='entity_id') | list %}
+  {#{- device_attr(each,'id') }#}
+  {% set ns.deviceids = ns.deviceids + [device_attr(each,'id')] %}
+{% endfor %}
+
+{# {{ device_attr('338c2b827e9804e55df21e131a0585bb','id') }} #}
+
+{# {{ ns.deviceids|unique|list }} #}
+
+
+{% for each in ns.deviceids|unique|list %}
+  {%- if each != None %}
+    {{- device_attr(each,'model') -}}
+  {% endif %}
+{% endfor %}
