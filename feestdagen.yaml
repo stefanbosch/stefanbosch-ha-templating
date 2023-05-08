@@ -1,0 +1,1113 @@
+- sensor:
+    - name: "Pasen"
+      attributes:
+        groep: Feestdag
+        feestdag_dit_jaar: >-
+          {% set year = today_at().strftime('%Y')|int %}
+          {% set a = year % 19 %}
+          {% set b = year // 100 %}
+          {% set c = year % 100 %}
+          {% set d = (19 * a + b - b // 4 - ((b - (b + 8) // 25 + 1) // 3) + 15) % 30 %}
+          {% set e = (32 + 2 * (b % 4) + 2 * (c // 4) - d - (c % 4)) % 7 %}
+          {% set f = d + e - 7 * ((a + 11 * d + 22 * e) // 451) + 114 %}
+          {% set month = f // 31 %}
+          {% set day = f % 31 + 1 %}
+          {{ day }}-{{ month }}-{{ year }}
+        feestdag: >
+          {% if (as_local(strptime(this.attributes.feestdag_dit_jaar|string,"%d-%m-%Y",now())) - today_at("00:00")).days >= 0 -%}
+            {{ this.attributes.feestdag_dit_jaar }}
+          {%- else -%}
+            {% set year = today_at().strftime('%Y')|int+1 %}
+            {% set a = year % 19 %}
+            {% set b = year // 100 %}
+            {% set c = year % 100 %}
+            {% set d = (19 * a + b - b // 4 - ((b - (b + 8) // 25 + 1) // 3) + 15) % 30 %}
+            {% set e = (32 + 2 * (b % 4) + 2 * (c // 4) - d - (c % 4)) % 7 %}
+            {% set f = d + e - 7 * ((a + 11 * d + 22 * e) // 451) + 114 %}
+            {% set month = f // 31 %}
+            {% set day = f % 31 + 1 %}
+            {{ day }}-{{ month }}-{{ year }}
+          {%- endif %}
+        feestdag_volgend_jaar: >
+          {% set year = today_at().strftime('%Y')|int+1 %}
+          {% set a = year % 19 %}
+          {% set b = year // 100 %}
+          {% set c = year % 100 %}
+          {% set d = (19 * a + b - b // 4 - ((b - (b + 8) // 25 + 1) // 3) + 15) % 30 %}
+          {% set e = (32 + 2 * (b % 4) + 2 * (c // 4) - d - (c % 4)) % 7 %}
+          {% set f = d + e - 7 * ((a + 11 * d + 22 * e) // 451) + 114 %}
+          {% set month = f // 31 %}
+          {% set day = f % 31 + 1 %}
+          {{ day }}-{{ month }}-{{ year }}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag_dit_jaar|string,"%d-%m-%Y",now())) - today_at("00:00")).days >= 0 -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:rabbit-variant
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+    - name: "Goedevrijdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% if (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) - timedelta(days=2) - today_at()).days >= 0 %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) - timedelta(days=2)).strftime('%d-%m-%Y') }}
+          {% else %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_volgend_jaar'),'%d-%m-%Y',now())) - timedelta(days=2)).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:calendar-star
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+
+
+    - name: "Paasmaandag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% if (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=1) - today_at()).days >= 0 %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=1)).strftime('%d-%m-%Y') }}
+          {% else %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_volgend_jaar'),'%d-%m-%Y',now())) + timedelta(days=1)).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:egg-easter
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+
+
+    - name: "Hemelvaartsdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% if (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=39) - today_at()).days >= 0 %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=39)).strftime('%d-%m-%Y') }}
+          {% else %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_volgend_jaar'),'%d-%m-%Y',now())) + timedelta(days=39)).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:leaf
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+
+
+    - name: "Luilak"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% if (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=48) - today_at()).days >= 0 %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=48)).strftime('%d-%m-%Y') }}
+          {% else %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_volgend_jaar'),'%d-%m-%Y',now())) + timedelta(days=48)).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:bed-clock
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+
+
+    - name: "Pinksteren"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% if (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=49) - today_at()).days >= 0 %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=49)).strftime('%d-%m-%Y') }}
+          {% else %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_volgend_jaar'),'%d-%m-%Y',now())) + timedelta(days=49)).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:calendar-star
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+
+
+    - name: "Pinkstermaandag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% if (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=50) - today_at()).days >= 0 %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_dit_jaar'),'%d-%m-%Y',now())) + timedelta(days=50)).strftime('%d-%m-%Y') }}
+          {% else %}
+          {{ (as_local(strptime(state_attr('sensor.pasen','feestdag_volgend_jaar'),'%d-%m-%Y',now())) + timedelta(days=50)).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:calendar-star
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+
+
+
+######################  fixed specific week day of specific month  ######################
+
+    - name: "Secretaressedag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set m = 4 %} {# 6=jun #}
+          {% set d = 3 %} {# 6=sun #}
+          {% set ns = namespace(d=today_at().replace(day=1,month=m)) %}
+          {% for a in range(0,7) %}
+            {% if ns.d.weekday() == d %}{% break %}{% endif %} 
+            {#{loop.index}} {{ ns.d }} {{ ns.d.weekday() }#}
+            {% set ns.d = ns.d + timedelta(days=1) %} {# Eerst van de maand #}
+          {% endfor %}
+          {% set ns.d = ns.d + timedelta(days=14) %} {# Derde van de maand #}
+
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {% set ns = namespace(d=today_at().replace(day=1,month=m,year=now().year+1)) %}
+            {% for a in range(0,7) %}
+              {% if ns.d.weekday() == d %}{% break %}{% endif %} 
+              {#{loop.index}} {{ ns.d }} {{ ns.d.weekday() }#}
+              {% set ns.d = ns.d + timedelta(days=1) %} {# Eerst van de maand #}
+            {% endfor %}
+            {% set ns.d = ns.d + timedelta(days=14) %} {# Derde van de maand #}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:account-tie-woman
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+
+    - name: "Moederdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set m = 5 %} {# 5=may #}
+          {% set d = 6 %} {# 6=sun #}
+          {% set ns = namespace(d=today_at().replace(day=1,month=m)) %}
+          {% for a in range(0,7) %}
+            {% if ns.d.weekday() == d %}{% break %}{% endif %} 
+            {#{loop.index}} {{ ns.d }} {{ ns.d.weekday() }#}
+            {% set ns.d = ns.d + timedelta(days=1) %} {# Eerst van de maand #}
+          {% endfor %}
+          {% set ns.d = ns.d + timedelta(days=7) %} {# Tweede van de maand #}
+
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {% set ns = namespace(d=today_at().replace(day=1,month=m,year=now().year+1)) %}
+            {% for a in range(0,7) %}
+              {% if ns.d.weekday() == d %}{% break %}{% endif %} 
+              {#{loop.index}} {{ ns.d }} {{ ns.d.weekday() }#}
+              {% set ns.d = ns.d + timedelta(days=1) %} {# Eerst van de maand #}
+            {% endfor %}
+            {% set ns.d = ns.d + timedelta(days=7) %} {# Tweede van de maand #}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:face-woman
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+    - name: "Vaderdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set m = 6 %} {# 6=jun #}
+          {% set d = 6 %} {# 6=sun #}
+          {% set ns = namespace(d=today_at().replace(day=1,month=m)) %}
+          {% for a in range(0,7) %}
+            {% if ns.d.weekday() == d %}{% break %}{% endif %} 
+            {#{loop.index}} {{ ns.d }} {{ ns.d.weekday() }#}
+            {% set ns.d = ns.d + timedelta(days=1) %} {# Eerst van de maand #}
+          {% endfor %}
+          {% set ns.d = ns.d + timedelta(days=14) %} {# Derde van de maand #}
+
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {% set ns = namespace(d=today_at().replace(day=1,month=m,year=now().year+1)) %}
+            {% for a in range(0,7) %}
+              {% if ns.d.weekday() == d %}{% break %}{% endif %} 
+              {#{loop.index}} {{ ns.d }} {{ ns.d.weekday() }#}
+              {% set ns.d = ns.d + timedelta(days=1) %} {# Eerst van de maand #}
+            {% endfor %}
+            {% set ns.d = ns.d + timedelta(days=14) %} {# Derde van de maand #}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:face-man
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+    - name: "Burendag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set m = 9 %} {# 9=sep #}
+          {% set d = 5 %} {# 5=sat #}
+          {% set ns = namespace(d=today_at().replace(day=1,month=m)) %}
+          {% for a in range(0,7) %}
+            {% if ns.d.weekday() == d %}{% break %}{% endif %} 
+            {#{loop.index}} {{ ns.d }} {{ ns.d.weekday() }#}
+            {% set ns.d = ns.d + timedelta(days=1) %} {# Eerst van de maand #}
+          {% endfor %}
+          {% set ns.d = ns.d + timedelta(days=21) %} {# Vierde van de maand #}
+
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {% set ns = namespace(d=today_at().replace(day=1,month=m,year=now().year+1)) %}
+            {% for a in range(0,7) %}
+              {% if ns.d.weekday() == d %}{% break %}{% endif %} 
+              {#{loop.index}} {{ ns.d }} {{ ns.d.weekday() }#}
+              {% set ns.d = ns.d + timedelta(days=1) %} {# Eerst van de maand #}
+            {% endfor %}
+            {% set ns.d = ns.d + timedelta(days=21) %} {# Vierde van de maand #}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:home-city
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+######################  fixed day  ######################
+
+
+    - name: "Nieuwjaarsdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=1,month=1)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:shimmer
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Drie koningen"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=6,month=1)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:chess-king
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Valentijnsdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=14,month=2)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:heart
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Nationale complimentendag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=1,month=3)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:message
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Internationale vrouwendag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=8,month=3)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:human-female-female
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Pi dag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=14,month=3)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:pi
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Koningsdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=27,month=4)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:crown-outline
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Dag van de Arbeid"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=1,month=5)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:hammer-wrench
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Dodenherdenking"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=4,month=5)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:coffin
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Bevrijdingsdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=5,month=5)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:handshake
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Prinsjesdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=15,month=9)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:abacus
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Dierendag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=4,month=10)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:dog
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Halloween"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=31,month=10)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:halloween
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Sint Maarten"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=11,month=11)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:calendar-star
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Sinterklaas"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=5,month=12)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:horse-human
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Kerstmis"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=25,month=12)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:hexagram
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Tweede kerstdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=26,month=12)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:calendar-star
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
+
+
+
+    - name: "Oudjaarsdag"
+      attributes:
+        groep: Feestdag
+
+        feestdag: >-
+          {% set ns = namespace(d=today_at().replace(day=31,month=12)) %}
+          {% if (ns.d - today_at()).days >= 0 %}
+            {{ ns.d.strftime('%d-%m-%Y') }}
+          {% else %}
+            {{ ns.d.replace(year=now().year+1).strftime('%d-%m-%Y') }}
+          {% endif %}
+        dit_jaar: >
+          {% if (as_local(strptime(this.attributes.feestdag|string,"%d-%m-%Y",now() )).year) == now().year -%}
+            True
+          {%- else -%}
+            False
+          {%- endif %}
+        dagen: >-
+          {{ (as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())) - today_at("00:00")).days }}
+
+        dag: >
+          {{ as_local(strptime(this.attributes.feestdag,"%d-%m-%Y",now())).strftime("%A %-d %B '%y") }}
+      icon: mdi:firework
+      state: >-
+        {% if this.attributes.dagen == 0 -%}
+          Vandaag
+        {%- elif this.attributes.dagen == 1 -%}
+          Morgen
+        {%- else -%}
+          Over {{ this.attributes.dagen }} dagen
+        {%- endif %}
+
