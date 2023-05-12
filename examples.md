@@ -11,7 +11,7 @@ Today is {{ now().strftime('%A') }}
 {{ (strptime('1-5-2023','%d-%m-%Y')|as_local).weekday() }}
 ```
 
-# Check which lights are activitated at this moment.
+# Check how many lights are activitated at this moment.
 
 ```yaml
 {% set array = [
